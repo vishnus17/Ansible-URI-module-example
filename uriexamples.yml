@@ -1,0 +1,85 @@
+---
+- name: Ansible URI Module Examples
+  hosts: targets
+  remote_user: root
+  gather_facts: false
+
+  tasks:
+  - name: Check that you can connect (GET) to a page and it returns a status 200
+    ansible.builtin.uri:
+      url: https://www.google.com
+
+  - name: SMS api for all hosts
+    uri:
+      url: https://smsapi-com3.p.rapidapi.com/ping
+      method: GET
+      status_code: [200, 202]
+      headers:
+          content-type: application/x-www-form-urlencoded
+          Accept-Encoding: application/gzip
+          X-RapidAPI-Key: <your-key>
+          X-RapidAPI-Host: smsapi-com3.p.rapidapi.com
+          access_token: 12345
+    register: smsoutput
+  
+  - name: print SMS api output
+    ansible.builtin.debug: 
+      var: smsoutput  
+  
+  - name: SMS api for specific host
+    uri:
+      url: https://smsapi-com3.p.rapidapi.com/ping
+      method: GET
+      body_format: json
+      status_code: [200, 202]
+      headers:
+          content-type: application/x-www-form-urlencoded
+          Accept-Encoding: application/gzip
+          X-RapidAPI-Key: <your-key>
+          X-RapidAPI-Host: smsapi-com3.p.rapidapi.com
+          access_token: 12345
+    register: smsoutput_specific
+
+  - name: print SMS api output
+    when: ansible_host=="192.168.64.3" # only print output on host with IP
+    ansible.builtin.debug: 
+      var: smsoutput_specific
+
+  - name: SMS api for specific host with delegate_to only
+    uri:
+      url: https://smsapi-com3.p.rapidapi.com/ping
+      method: GET
+      body_format: json
+      status_code: [200, 202]
+      headers:
+          content-type: application/x-www-form-urlencoded
+          Accept-Encoding: application/gzip
+          X-RapidAPI-Key: <your-key>
+          X-RapidAPI-Host: smsapi-com3.p.rapidapi.com
+          access_token: 12345
+    delegate_to: 192.168.64.3 # only run this task on host with IP
+    register: smsoutput_specific_delegate_to
+
+  - name: print SMS api output
+    ansible.builtin.debug: 
+      var: smsoutput_specific_delegate_to
+
+  - name: SMS api for specific host using delegate_to and when
+    uri:
+      url: https://smsapi-com3.p.rapidapi.com/ping
+      method: GET
+      body_format: json
+      status_code: [200, 202]
+      headers:
+          content-type: application/x-www-form-urlencoded
+          Accept-Encoding: application/gzip
+          X-RapidAPI-Key: <your-key>
+          X-RapidAPI-Host: smsapi-com3.p.rapidapi.com
+          access_token: 12345
+    delegate_to: 192.168.64.3 # only run this task on host with IP
+    register: smsoutput_specific
+
+  - name: print SMS api output
+    when: ansible_host=="192.168.64.3" # only print output on host with IP
+    ansible.builtin.debug: 
+      var: smsoutput_specific
